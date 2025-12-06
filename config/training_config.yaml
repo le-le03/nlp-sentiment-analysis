@@ -1,0 +1,139 @@
+# 增强版情感分析系统配置文件
+# 保存位置：项目根目录/config/training_config.yaml
+
+training:
+  # 基础配置
+  epochs: 15
+  batch_size: 32
+  learning_rate: 0.0005
+  validation_split: 0.1
+
+  # 早停配置
+  early_stopping:
+    patience: 8
+    min_delta: 0.0005
+    restore_best_weights: true
+    monitor: 'val_loss'
+
+  # 学习率调度
+  reduce_lr:
+    factor: 0.2
+    patience: 4
+    min_lr: 1e-7
+    monitor: 'val_loss'
+
+regularization:
+  # 正则化配置
+  dropout_rate: 0.6
+  l2_reg: 0.01
+  recurrent_dropout: 0.3
+  spatial_dropout: 0.2
+
+  # Batch Normalization
+  use_batch_norm: true
+  momentum: 0.9
+  epsilon: 0.001
+
+  # 梯度裁剪
+  clipnorm: 1.0
+  clipvalue: 0.5
+
+data:
+  # 数据集选择
+  use_full_dataset: true  # true:完整数据集, false:部分数据集
+
+  # 部分数据集配置（当use_full_dataset=false时生效）
+  train_samples: 20000
+  test_samples: 5000
+
+  # 文本处理
+  max_vocab_size: 10000
+  max_sequence_length: 200
+  embedding_dim: 128
+
+  # 数据增强
+  augmentation:
+    enabled: true
+    factor: 0.3
+    methods:
+      - synonym_replacement
+      - random_deletion
+      - random_swap
+    replacement_rate: 0.2
+    deletion_rate: 0.1
+    swap_rate: 0.1
+
+  # 缓存配置
+  use_cache: true
+  cache_dir: "cache"
+
+  # 特征提取
+  extract_features: true
+  include_sentiment_features: true
+
+models:
+  # 启用的模型
+  enabled_models:
+    - cnn
+    - lstm
+    - hybrid
+    - bert
+
+  # 模型参数
+  cnn:
+    filters: [64, 128]
+    kernel_sizes: [3, 3]
+    dense_units: [128, 64, 32]
+
+  lstm:
+    units: [128, 64]
+    bidirectional: true
+    dense_units: [128, 64]
+
+  hybrid:
+    cnn_filters: 64
+    lstm_units: 64
+    dense_units: [128, 64]
+
+  # BERT配置
+  bert:
+    model_type: "small_bert"  # 可选: small_bert, standard_bert
+    trainable: true
+    learning_rate: 2e-5
+    use_lstm: false  # 是否结合LSTM
+
+  # 集成配置
+  ensemble:
+    method: "weighted_average"  # stacking, weighted_average, voting
+    use_advanced_weights: true
+    weight_by_auc: true
+
+monitoring:
+  # 监控配置
+  use_tensorboard: true
+  log_dir: "logs"
+  save_checkpoints: true
+  save_best_only: true
+
+  # 评估指标
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1
+    - auc
+    - loss
+
+  # 可视化
+  plot_training_history: true
+  plot_model_comparison: true
+  save_plots: true
+
+paths:
+  # 路径配置（使用绝对路径）
+  base_dir: "."  # 自动填充
+  models_dir: "models"
+  results_dir: "results"
+  data_dir: "data"
+  cache_dir: "cache"
+  log_dir: "logs"
